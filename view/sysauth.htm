@@ -1,0 +1,65 @@
+<%+bm%>
+
+<center>
+  <%- if fuser then %>
+    <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fua-stena.info%2Fwp-content%2Fuploads%2F2019%2F07%2Fmaxresdefault-24.jpg&amp;f=1&amp;nofb=1">
+  <%- else -%>
+    <img src="<%=resource%>/bmlogo.png"/>
+    <form id="login-form" method="post" action="<%=pcdata(FULL_REQUEST_URI)%>">
+      <div class="cbi-map">
+        <h2 name="content"><%:Authorization Required%></h2>
+        <div class="cbi-map-descr">
+          <%:Please enter your username and password.%>
+        </div>
+        <div class="cbi-section"><div class="cbi-section-node">
+          <div class="cbi-value">
+            <div class="cbi-value-field">
+              <input class="cbi-input-text" type="text" name="luci_username" placeholder="BaDMaN" />
+            </div>
+          </div>
+          <div class="cbi-value cbi-value-last">
+            <div class="cbi-value-field">
+              <input class="cbi-input-text" type="password" name="luci_password" placeholder="Super secret password" />
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="cbi-page-actions">
+        <input type="submit" value="<%:Login%>" class="cbi-button cbi-button-apply" />
+      </div>
+    </form>
+  <%- end -%>
+</center>
+<script type="text/javascript">//<![CDATA[
+	var input = document.getElementsByName('luci_password')[0];
+	if (input)
+		input.focus();
+//]]></script>
+
+<%
+local uci  = require "luci.model.uci".cursor()
+local fs  = require "nixio.fs"
+local https_key = uci:get("uhttpd", "main", "key")
+local https_port = uci:get("uhttpd", "main", "listen_https")
+if type(https_port) == "table" then
+	https_port = https_port[1]
+end
+
+if https_port and fs.access(https_key) then
+	https_port = https_port:match("(%d+)$")
+%>
+
+<script type="text/javascript">//<![CDATA[
+	if (document.location.protocol != 'https:') {
+		var url = 'https://' + window.location.hostname + ':' + '<%=https_port%>' + window.location.pathname;
+		var img=new Image;
+		img.onload=function(){window.location = url};
+		img.src='https://' + window.location.hostname + ':' + '<%=https_port%>' + '<%=resource%>/cbi/up.gif?' + Math.random();;
+		setTimeout(function(){
+			img.src=''
+		}, 5000);
+	}
+//]]></script>
+
+<% end %>
